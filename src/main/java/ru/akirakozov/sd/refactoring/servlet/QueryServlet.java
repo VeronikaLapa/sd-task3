@@ -26,15 +26,19 @@ public class QueryServlet extends HttpServlet {
         ResponseBuilder responseBuilder = new ResponseBuilder(response);
         DataManager dataManager = new DataManager();
         if ("max".equals(command)) {
+            responseBuilder.addHeader("Product with max price: ");
             Product product = dataManager.getMax();
             responseBuilder.addLine(product.getName() + "\t" + product.getPrice());
         } else if ("min".equals(command)) {
+            responseBuilder.addHeader("Product with min price: ");
             Product product = dataManager.getMin();
             responseBuilder.addLine(product.getName() + "\t" + product.getPrice());
         } else if ("sum".equals(command)) {
+            responseBuilder.addText("Summary price: ");
             int sum = dataManager.getSum();
             responseBuilder.addText(String.valueOf(sum));
         } else if ("count".equals(command)) {
+            responseBuilder.addText("Number of products: ");
             int count = dataManager.getCount();
             responseBuilder.addText(String.valueOf(count));
 
