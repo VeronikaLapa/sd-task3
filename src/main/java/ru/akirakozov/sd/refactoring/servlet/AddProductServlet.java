@@ -1,6 +1,7 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
 import ru.akirakozov.sd.refactoring.dao.Product;
+import ru.akirakozov.sd.refactoring.db.DataManager;
 import ru.akirakozov.sd.refactoring.html.ResponseBuilder;
 
 import javax.servlet.http.HttpServlet;
@@ -20,20 +21,8 @@ public class AddProductServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String name = request.getParameter("name");
         long price = Long.parseLong(request.getParameter("price"));
-
-        Product product = new Product(name, price);
-
-        try {
-            try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                String sql = "INSERT INTO PRODUCT " +
-                        "(NAME, PRICE) VALUES (\"" + product.getName() + "\"," + product.getPrice() + ")";
-                Statement stmt = c.createStatement();
-                stmt.executeUpdate(sql);
-                stmt.close();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        DataManager dataManager = new DataManager();
+        dataManager.addProduct(new Product(name, price));
         ResponseBuilder responseBuilder = new ResponseBuilder(response);
         responseBuilder.addText("OK");
         responseBuilder.build();
