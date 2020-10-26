@@ -1,5 +1,7 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
+import ru.akirakozov.sd.refactoring.html.ResponseBuilder;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -84,19 +86,17 @@ public class QueryServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String command = request.getParameter("command");
         QueryType queryType = QueryType.fromString(command);
+        ResponseBuilder responseBuilder = new ResponseBuilder(response);
         if (queryType != null) {
             try {
                 try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
                     Statement stmt = c.createStatement();
                     ResultSet rs = stmt.executeQuery(queryType.getSql());
-                    response.getWriter().println("<html><body>");
-                    response.getWriter().println(queryType.getInfo());
+                    responseBuilder.addText(queryType.getInfo());
 
                     while (rs.next()) {
                         queryType.writeResponse(response, rs);
                     }
-                    response.getWriter().println("</body></html>");
-
                     rs.close();
                     stmt.close();
                 }
@@ -108,8 +108,7 @@ public class QueryServlet extends HttpServlet {
             response.getWriter().println("Unknown command: " + command);
         }
 
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
+        responseBuilder.build();
     }
 
 }
